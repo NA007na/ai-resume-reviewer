@@ -1,0 +1,289 @@
+{
+  "name": "AI Resume review agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resume-review",
+        "responseMode": "responseNode",
+        "options": {
+          "binaryPropertyName": ""
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        16
+      ],
+      "id": "c2833cbd-2fee-42ef-8090-f3ead9f54a01",
+      "name": "Webhook",
+      "webhookId": "0e646174-9a8d-4955-ad54-e8c237acc80e"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"review\": {{ JSON.stringify($json.ai_review) }}\n}\n",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1392,
+        16
+      ],
+      "id": "a505ed30-4641-4d3f-a960-04f04e2b970d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "938da3dc-80a8-4ab8-9402-de6695f6a940",
+              "name": "=ai_review",
+              "value": "={{$json.choices[0].message.content}}\n",
+              "type": "string"
+            },
+            {
+              "id": "b8f84ccd-a162-4342-afef-e0d1aa7f4eea",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        16
+      ],
+      "id": "873a9fce-7be2-4259-a5ec-7a92990f7fb3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        16
+      ],
+      "id": "b529d6dd-7ef3-4471-887f-aba0cfac5ea4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const binaryKey = Object.keys(item.binary)[0];\n\nreturn {\n  json: item.json,\n  binary: {\n    resume: item.binary[binaryKey],\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        32
+      ],
+      "id": "958b1395-70ea-4495-934e-2620b80f8b99",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd6f22cc-2ff0-4241-af0e-dcec9e104b81",
+              "name": "=resume_text",
+              "value": "={{$json.text}}",
+              "type": "string"
+            },
+            {
+              "id": "9503e457-5167-44fd-bddf-e55b707f9752",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        16
+      ],
+      "id": "9ee4bdc4-0fd6-44fa-82c1-44c51b4b9590",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer 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\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert recruiter and ATS reviewer.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.resume_text) }}\n    }\n  ],\n  \"temperature\": 0.3\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        816,
+        16
+      ],
+      "id": "74b2c7ba-3424-4923-a018-4fe7e08ce367",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "nishanthanand.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+            "content-length": "140418",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-US,en;q=0.9",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "117.192.38.52",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "9c2dd0e362bf343c-BLR",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryafTcBXLXyQ2XqCs8",
+            "origin": "null",
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Microsoft Edge\";v=\"144\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "117.192.38.52, 172.68.79.210",
+            "x-forwarded-host": "nishanthanand.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-35-6969fc8dbc-m8pg5",
+            "x-is-trusted": "yes",
+            "x-real-ip": "117.192.38.52"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "job_role": "test engineer"
+          },
+          "webhookUrl": "https://nishanthanand.app.n8n.cloud/webhook/resume-review",
+          "executionMode": "production"
+        },
+        "binary": {
+          "resume": {
+            "mimeType": "application/pdf",
+            "fileType": "pdf",
+            "fileExtension": "pdf",
+            "data": "filesystem-v2",
+            "fileName": "Nishanth_Anand_resume.pdf",
+            "id": "filesystem-v2:workflows/90Js4JtJJoO7XLoy0JvfL/executions/temp/binary_data/5f897ac3-403c-4717-b615-0274d66c355f",
+            "fileSize": "140 kB"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "cef4deb7-c5f1-4b5b-8945-fdd3661c21af",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9ff09c367430f67ffbe820b9848b00ef933baeb8e78ded62a5415e3be36ac494"
+  },
+  "id": "90Js4JtJJoO7XLoy0JvfL",
+  "tags": []
+}
